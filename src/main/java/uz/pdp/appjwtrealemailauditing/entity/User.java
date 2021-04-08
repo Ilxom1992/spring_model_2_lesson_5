@@ -15,18 +15,20 @@ import javax.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-@Entity
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
+@Entity(name = "users")
+
 public class User implements UserDetails  {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private UUID id;
-@Size(min = 3,max = 50)
+    @Size(min = 3,max = 50)
     @Column(nullable = false)
     private String firstName;//USRNING TAKRORLANMAS RAQQMI
 
@@ -38,17 +40,20 @@ public class User implements UserDetails  {
 
     @Column(nullable = false)
     private String password;
-@Column(nullable = false,updatable = false)
+    @Column(nullable = false,updatable = false)
     @CreationTimestamp
     private Timestamp createdAt;
     @UpdateTimestamp
     private  Timestamp updateAt;
-@ManyToMany
-    private List<Role> role;
+    @ManyToMany
+    private Set<Role> role;
        private boolean accountNonExpired=true;//bu acountning amal qilish muddati
        private boolean accountNonLocked=true;//bu user boloclanmaganligi
        private boolean credentialsNonExpired=true;//
        private boolean enabled;//
+
+
+    private  String emailCode;
 //BU USER DETAILESNINIG METHODLARI
     //USERNINIG HUQUQLARI
     @Override
