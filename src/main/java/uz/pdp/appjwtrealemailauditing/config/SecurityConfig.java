@@ -1,9 +1,10 @@
-package uz.pdp.appjwtrealemailauditing.security;
+package uz.pdp.appjwtrealemailauditing.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -23,7 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                .csrf().disable()
                .httpBasic().disable()
                .authorizeRequests()
-               .antMatchers("/api/auth/register","/api/auth/register/verifyEmail").permitAll()
+               .antMatchers("/api/auth/register","/api/auth/verifyEmail","/api/auth/login").permitAll()
                .anyRequest()
                .authenticated();
 
@@ -48,4 +49,9 @@ public JavaMailSender javaMailSender(){
     properties.put("mail.debug","true");
     return  mailSender;
 }
+    @Bean
+    @Override
+    protected AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManagerBean();
+    }
 }
