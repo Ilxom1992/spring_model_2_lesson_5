@@ -13,14 +13,12 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class RegisterDto {
+public class LoginDto {
 
-    @Size(min = 3,max = 50)
-    private String firstName;
-    @Size(min = 3,max = 50)
-    private String lastName;
     @Email
-    private String email;
+    @NonNull
+    private String username;
+
     @NonNull
     private String password;
 
