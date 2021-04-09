@@ -21,8 +21,8 @@ public class AuthController {
         return ResponseEntity.status(userRegister.isSuccess() ? 201 : 409 ).body(userRegister);
     }
     @GetMapping("/verifyEmail")
-    public  HttpEntity<?> verifyEmail(@RequestParam String emailCode,@RequestParam String email){
-     ApiResponse apiResponse=  authService.verifyEmail(emailCode,email);
+    public  HttpEntity<?> verifyEmail(@RequestParam(name = "Code") String emailCode,@RequestParam(name = "email") String email){
+     ApiResponse apiResponse=  authService.verifyEmail(email,emailCode);
      return  ResponseEntity.status(apiResponse.isSuccess()?200:409).body(apiResponse);
     }
 //    @PostMapping(value = "/login")
