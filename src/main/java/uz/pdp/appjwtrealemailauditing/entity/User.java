@@ -45,7 +45,8 @@ public class User implements UserDetails  {
     private Timestamp createdAt;
     @UpdateTimestamp
     private  Timestamp updateAt;
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> role;
        private boolean accountNonExpired=true;//bu acountning amal qilish muddati
        private boolean accountNonLocked=true;//bu user boloclanmaganligi

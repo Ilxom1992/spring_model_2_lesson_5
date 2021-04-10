@@ -27,7 +27,21 @@ private  static final String secretKey="Mahfiy soz";
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
         return token;
+    
 
+    }
 
+    public  String getUserEmailFromToken(String token){
+        try {
+            String email = Jwts
+                    .parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+                return email ;
+        }catch (Exception e){
+            return null;
+        }
     }
 }

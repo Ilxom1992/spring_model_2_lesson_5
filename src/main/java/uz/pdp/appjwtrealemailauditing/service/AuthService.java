@@ -1,14 +1,17 @@
 package uz.pdp.appjwtrealemailauditing.service;
 
+import lombok.NoArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import uz.pdp.appjwtrealemailauditing.config.SecurityConfig;
 import uz.pdp.appjwtrealemailauditing.entity.User;
 import uz.pdp.appjwtrealemailauditing.entity.enams.RoleEnum;
 import uz.pdp.appjwtrealemailauditing.payload.ApiResponse;
@@ -17,25 +20,22 @@ import uz.pdp.appjwtrealemailauditing.payload.RegisterDto;
 import uz.pdp.appjwtrealemailauditing.repository.RoleRepository;
 import uz.pdp.appjwtrealemailauditing.repository.UserRepository;
 import uz.pdp.appjwtrealemailauditing.security.JwtProvider;
-
-
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class AuthService {
+public class AuthService implements UserDetailsService {
+
     final UserRepository userRepository;
-    final SecurityConfig securityConfig;
     final PasswordEncoder passwordEncoder;
     final RoleRepository roleRepository;
     final JavaMailSender javaMailSender;
     final AuthenticationManager authenticationManager;
     final JwtProvider jwtProvider;
-    public AuthService(UserRepository userRepository, SecurityConfig securityConfig, PasswordEncoder passwordEncoder, RoleRepository roleRepository, JavaMailSender javaMailSender,
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, JavaMailSender javaMailSender,
                        AuthenticationManager authenticationManager, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
-        this.securityConfig = securityConfig;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.javaMailSender = javaMailSender;
@@ -104,5 +104,14 @@ catch (Exception e){
         }catch (BadCredentialsException badCredentialsException){
             return new ApiResponse( "Parol yoki lagin hato",false);
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> optionalUser= userRepository.findByEmail(email);
+        if (optionalUser.isPresent()){
+            return optionalUser.get();
+        }
+        throw new UsernameNotFoundException(" User topilmadi");
     }
 }

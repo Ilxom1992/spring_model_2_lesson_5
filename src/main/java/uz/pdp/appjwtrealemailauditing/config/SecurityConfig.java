@@ -2,20 +2,41 @@ package uz.pdp.appjwtrealemailauditing.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import uz.pdp.appjwtrealemailauditing.security.JwtFilter;
+import uz.pdp.appjwtrealemailauditing.service.AuthService;
 
 import java.util.Properties;
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
+
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+
+
+ final AuthService authService;
+ final JwtFilter jwtFilter;
+
+    public SecurityConfig(@Lazy AuthService authService,@Lazy JwtFilter jwtFilter) {
+        this.authService = authService;
+        this.jwtFilter = jwtFilter;
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(authService).passwordEncoder(passwordEncoder());
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -27,16 +48,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                .antMatchers("/api/auth/register","/api/auth/verifyEmail","/api/auth/login").permitAll()
                .anyRequest()
                .authenticated();
-
+http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
-
     @Bean
-PasswordEncoder passwordEncoder(){
-    return new BCryptPasswordEncoder();
-}
-
-@Bean
-public JavaMailSender javaMailSender(){
+    public JavaMailSender javaMailSender(){
     JavaMailSenderImpl mailSender=new JavaMailSenderImpl();
     mailSender.setHost("smtp.gmail.com");
     mailSender.setPort(587);
@@ -50,8 +66,12 @@ public JavaMailSender javaMailSender(){
     return  mailSender;
 }
     @Bean
+PasswordEncoder passwordEncoder(){
+        return new  BCryptPasswordEncoder();
+}
+    @Bean
     @Override
-    protected AuthenticationManager authenticationManager() throws Exception {
+    public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 }
