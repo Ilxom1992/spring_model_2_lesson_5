@@ -17,12 +17,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-//CREATE BY UP
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;//MAHSULONINIG TAKRORLANMAS QISMI
+    @GeneratedValue
+    private UUID id;
 
     private String name;
     @CreatedBy

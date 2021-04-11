@@ -23,8 +23,6 @@ import java.util.Properties;
 
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-
-
  final AuthService authService;
  final JwtFilter jwtFilter;
 
@@ -74,4 +72,6 @@ PasswordEncoder passwordEncoder(){
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
+
 }
