@@ -20,7 +20,6 @@ import uz.pdp.appjwtrealemailauditing.service.AuthService;
 import java.util.Properties;
 @Configuration
 @EnableWebSecurity
-
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
  final AuthService authService;
@@ -36,26 +35,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(authService).passwordEncoder(passwordEncoder());
     }
 
+    /**
+     * bu yerda tizimdagi huquqlar belgilangan ochi yopiq yollar berilgan
+     * @param http
+     * @throws Exception
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
        http
                .csrf().disable()
-               .httpBasic().disable()
+
                .authorizeRequests()
-               .antMatchers("/api/auth/register","/api/auth/verifyEmail","/api/auth/login").permitAll()
+               .antMatchers("/api/auth/register","/api/auth/verifyEmail","/api/auth/login")
+               .permitAll()
                .anyRequest()
-               .authenticated();
+               .authenticated()
+               .and()
+               .httpBasic();
 http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
+
+    /**
+     * gmail.com ga hat yuborish uchun ishlatiladi
+     * nastroykalari
+     * @return
+     */
     @Bean
     public JavaMailSender javaMailSender(){
     JavaMailSenderImpl mailSender=new JavaMailSenderImpl();
     mailSender.setHost("smtp.gmail.com");
     mailSender.setPort(587);
     mailSender.setUsername("ilxom.xojamurodov@gmail.com");
-    mailSender.setPassword("qoramarmarid");
+    mailSender.setPassword("");
     Properties properties =mailSender.getJavaMailProperties();
     properties.put("mail.transport.protocol","smtp");
     properties.put("mail.smtp.auth","true");
@@ -63,10 +76,16 @@ http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     properties.put("mail.debug","true");
     return  mailSender;
 }
+
+    /**
+     * passwordni coddlab beradi encod qiadi
+     * @return
+     */
     @Bean
 PasswordEncoder passwordEncoder(){
         return new  BCryptPasswordEncoder();
 }
+
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {

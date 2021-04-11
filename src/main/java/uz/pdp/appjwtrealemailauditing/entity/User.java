@@ -27,10 +27,10 @@ import java.util.UUID;
 public class User implements UserDetails  {
     @Id
     @GeneratedValue
-    private UUID id;
+    private UUID id;//USRNING TAKRORLANMAS RAQQAMI
     @Size(min = 3,max = 50)
     @Column(nullable = false)
-    private String firstName;//USRNING TAKRORLANMAS RAQQMI
+    private String firstName;
 
     @Column(nullable = false)
     private String lastName;
@@ -40,6 +40,9 @@ public class User implements UserDetails  {
 
     @Column(nullable = false)
     private String password;
+
+    private  String phoneNumber;
+
     @Column(nullable = false,updatable = false)
     @CreationTimestamp
     private Timestamp createdAt;

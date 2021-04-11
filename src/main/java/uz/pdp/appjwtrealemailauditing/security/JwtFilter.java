@@ -16,9 +16,7 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter{
-    /**
-     *
-     */
+
     final JwtProvider jwtProvider;
     final AuthService authService;
 
@@ -26,6 +24,8 @@ public class JwtFilter extends OncePerRequestFilter{
         this.jwtProvider = jwtProvider;
         this.authService = authService;
     }
+
+
     @Override
         protected void doFilterInternal(HttpServletRequest httpServletRequest,
                                         HttpServletResponse httpServletResponse,
@@ -35,7 +35,6 @@ public class JwtFilter extends OncePerRequestFilter{
              authorization = authorization.substring(7);
             String email = jwtProvider.getUserEmailFromToken(authorization);
             if (email!=null){
-
                 UserDetails userDetails = authService.loadUserByUsername(email);
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                         = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

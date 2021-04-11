@@ -12,11 +12,22 @@ import java.util.Set;
 
 @Component
 public class JwtProvider {
-private final long expireTime=1000*60*60*24;
-private  static final String secretKey="Mahfiy soz";
+    /**
+     * TOKENGA VAQIT BERISH UCHUN ISHLATILADI
+     */
+    private final long expireTime=1000*60*60*24;
+    /**
+     * BU YERDA TOKEN UCHUN MAXFIY SO'Z YOZILGAN KALIT SO'ZI
+     */
+    private  static final String secretKey="Mahfiy soz";
 
+    /**
+     * TOKENNI YARATIB QAYTARADI
+     * @param username
+     * @param roles
+     * @return
+     */
     public String generateToken(String username, Set<Role> roles){
-
         Date expireDate = new Date(System.currentTimeMillis() + expireTime);
         String token = Jwts
                 .builder()
@@ -27,10 +38,13 @@ private  static final String secretKey="Mahfiy soz";
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
         return token;
-    
-
     }
 
+    /**
+     * KELGAN TOKEENI EMAILGA AYLANTIRIB QAYTARADI TEKSHIRIB BERADI
+     * @param token
+     * @return
+     */
     public  String getUserEmailFromToken(String token){
         try {
             String email = Jwts

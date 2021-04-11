@@ -23,5 +23,7 @@ public class RegisterDto {
     private String email;
     @NonNull
     private String password;
-
+    @NonNull
+    @Size(min = 7,max = 13)
+    private String phoneNumber;
 }

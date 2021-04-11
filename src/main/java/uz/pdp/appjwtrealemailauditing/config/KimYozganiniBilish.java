@@ -1,8 +1,10 @@
 package uz.pdp.appjwtrealemailauditing.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import uz.pdp.appjwtrealemailauditing.entity.User;
 
 import java.util.Optional;

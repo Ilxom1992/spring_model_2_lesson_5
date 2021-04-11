@@ -43,6 +43,12 @@ public class AuthService implements UserDetailsService {
         this.jwtProvider = jwtProvider;
     }
 
+    /**
+     * BU METHOD BAZAGA USERNI REGISTIRATSIYADAN O'TKAZISH UCHUN ISHLATILADI
+     * BAZAGA USERNI SAQLAYDI VA UNGA TASDIQLASH CODINI YUBORADI
+     * @param registerDto
+     * @return
+     */
     public ApiResponse userRegister(RegisterDto registerDto){
         boolean existsByEmail = userRepository.existsByEmail(registerDto.getEmail());
         if (existsByEmail){
@@ -53,24 +59,31 @@ public class AuthService implements UserDetailsService {
         user.setLastName(registerDto.getLastName());
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        //USERGA ROLE BERISH
         user.setRole(Collections.singleton(roleRepository.findByRoleName(RoleEnum.ROLE_USER)));
 
         //tasodifiy sonni yaratib beradi va userga saqlanadi
-
         user.setEmailCode(UUID.randomUUID().toString());
         userRepository.save(user);
-        //EMAILGA CHAQIRISH METHODINI CHAQIRYABMIZ
+        //EMAILGA HABAR YUBORISH TASDIQLASH KODINI YUBORADI, METHODINI CHAQIRYABMIZ
         sendEmail(user.getEmail(),user.getEmailCode());
         return new ApiResponse("Muafaqiyatli ro'yhatdan o'tdingiz Aakkonutingiz " +
                 "aktivlashtirishingiz uchun emailni tasdiqlang",true);
     }
+
+    /**
+     * BU METHOD USER EMAILIGA ACTIVE LASHTIRISH CODINI  YUBORISH UCHUN ISHLATILADI
+     * @param sendingEmail
+     * @param emailCod
+     * @return
+     */
     public Boolean sendEmail(String sendingEmail,String emailCod) {
         try {
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setFrom("Test@pdp.com");
             mailMessage.setTo(sendingEmail);
             mailMessage.setSubject("Akkountni Tasdiqlash");
-            mailMessage.setText("<a href='http://localhost:8081/api/auth/verifyEmail?Code=" + emailCod + "&email=" + sendingEmail + "'>Tasdiqlang</a>");
+            mailMessage.setText("<a href='http://localhost:8080/api/auth/verifyEmail?Code=" + emailCod + "&email=" + sendingEmail + "'>Tasdiqlang</a>");
             javaMailSender.send(mailMessage);
             return true;
         }
@@ -80,6 +93,15 @@ catch (Exception e){
 
     }
 
+    /**
+     * BU METHOD EMAILGA HAT BORGANDAN SO'NG TASDIQLASH HABARINI YUBORGANDA QABUL
+     * // QILIB OLIB UNI TEKSHIRIB ACCOUNTINI BAZADA
+     * //ACTIVE LASHTIRADI
+     *
+     * @param email
+     * @param emailCode
+     * @return
+     */
     public ApiResponse verifyEmail(String email, String emailCode) {
         Optional<User> optionalUser = userRepository.findByEmailAndEmailCode(email, emailCode);
         if (optionalUser.isPresent()){
@@ -92,6 +114,11 @@ catch (Exception e){
         return new ApiResponse("Akkount alloqachon tasdiqlangan",false);
     }
 
+    /**
+     * BU METHOD USERGA LOGIN VA PAROLI BILAN KIRGANDA TOKIN YASAB QAYTARIB JO'NATADI
+     * @param loginDto
+     * @return
+     */
     public ApiResponse login(LoginDto loginDto) {
         try {
             Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -106,6 +133,12 @@ catch (Exception e){
         }
     }
 
+    /**
+     * BU METHOD BAZADAN YUZERNI TOPIB QAYTARADI
+     * @param email
+     * @return
+     * @throws UsernameNotFoundException
+     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> optionalUser= userRepository.findByEmail(email);

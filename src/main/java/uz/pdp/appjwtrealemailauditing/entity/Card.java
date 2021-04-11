@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.UUID;
 
 @Data
@@ -18,12 +19,18 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Product {
+public class Card {
     @Id
     @GeneratedValue
     private UUID id;
+    @ManyToOne
+    private  User user;
+    @Column(nullable = false,unique = true)
+    private Long number;
+    private Double balance;
+    private Date expiredDate;
+    private  boolean active;
 
-    private String name;
     @CreatedBy
     private UUID createBy;//KIM QO'SHGANLIGI
     @LastModifiedBy
@@ -32,5 +39,7 @@ public class Product {
     private Timestamp updateAt;
     @CreationTimestamp
     private Timestamp createdAt;
+
+
 
 }
