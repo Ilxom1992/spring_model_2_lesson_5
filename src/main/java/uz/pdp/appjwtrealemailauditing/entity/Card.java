@@ -23,13 +23,20 @@ public class Card {
     @Id
     @GeneratedValue
     private UUID id;
-    @ManyToOne
-    private  User user;
+
     @Column(nullable = false,unique = true)
     private Long number;
-    private Double balance;
+
+    private  String username;
+
+    private Double balance=200000.0;
+
     private Date expiredDate;
-    private  boolean active;
+
+    private  boolean isActive;
+
+    @OneToOne
+    private  User user;
 
     @CreatedBy
     private UUID createBy;//KIM QO'SHGANLIGI

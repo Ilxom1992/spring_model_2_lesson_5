@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.appjwtrealemailauditing.payload.CardDto;
+import uz.pdp.appjwtrealemailauditing.payload.Response;
 import uz.pdp.appjwtrealemailauditing.service.CardService;
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -21,21 +22,37 @@ public class CardController {
         this.cardService = cardService;
     }
 
-    //  CREATE
-    @PostMapping
-    public HttpEntity<?> add(@Valid @RequestBody CardDto cardDto){
-        return ResponseEntity.status(200).body(cardService.addCard(cardDto));
+    @PostMapping("/add")
+    public HttpEntity<?> addCard(@RequestBody CardDto cardDto) {
+        final Response response = cardService.add(cardDto);
+        return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
-    //READ
-    @GetMapping
-    public HttpEntity<?> get(){
-        return ResponseEntity.status(200).body(cardService.getCard());
+
+    @PostMapping("/transfer")
+    public HttpEntity<?> transfer(@RequestParam Double amount,
+                                  @RequestParam UUID senderId,
+                                  @RequestParam UUID senderCardId,
+                                  @RequestParam UUID recipientCardId) {
+        final Response response = cardService.transfer(amount, senderId, senderCardId, recipientCardId);
+        return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
-    //DELETE
-    @DeleteMapping(value = "/{id}")
-    public HttpEntity<?> delete(@PathVariable UUID id){
-        return ResponseEntity.ok(cardService.deleteCard(id));
+
+    @PostMapping("/deposit")
+    public HttpEntity<?> deposit(@RequestParam Double amount,
+                                 @RequestParam UUID userId,
+                                 @RequestParam UUID cardId) {
+        final Response response = cardService.deposit(amount, userId, cardId);
+        return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
+
+    @PostMapping("/withdrawal")
+    public HttpEntity<?> withdrawal(@RequestParam Double amount,
+                                    @RequestParam UUID userId,
+                                    @RequestParam UUID cardId) {
+        final Response response = cardService.withdrawal(amount, userId, cardId);
+        return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Map<String, String> handleValidationExceptions(

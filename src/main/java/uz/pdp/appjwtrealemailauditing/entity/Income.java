@@ -23,11 +23,14 @@ public class Income {
     @Id
     @GeneratedValue
     private UUID id;
-    private Long fromCardId;
-    private Long toCardId;
+
+    @OneToOne
+    private Card fromCard;
+
+    @OneToOne
+    private Card toCard;
+
     private Double amount;
-    @ManyToOne
-    private Card card;
 
     @CreatedBy
     private UUID createBy;//KIM QO'SHGANLIGI

@@ -41,8 +41,6 @@ public class User implements UserDetails  {
     @Column(nullable = false)
     private String password;
 
-    private  String phoneNumber;
-
     @Column(nullable = false,updatable = false)
     @CreationTimestamp
     private Timestamp createdAt;
@@ -58,7 +56,7 @@ public class User implements UserDetails  {
 
 
     private  String emailCode;
-//BU USER DETAILESNINIG METHODLARI
+     //BU USER DETAILESNINIG METHODLARI
     //USERNINIG HUQUQLARI
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

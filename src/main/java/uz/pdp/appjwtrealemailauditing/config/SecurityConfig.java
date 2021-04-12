@@ -45,9 +45,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
        http
                .csrf().disable()
-
                .authorizeRequests()
-               .antMatchers("/api/auth/register","/api/auth/verifyEmail","/api/auth/login")
+               .antMatchers("/api/auth/register","/api/auth/verifyEmail","/api/auth/login","/api/card/**")
                .permitAll()
                .anyRequest()
                .authenticated()
@@ -78,7 +77,7 @@ http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 }
 
     /**
-     * passwordni coddlab beradi encod qiadi
+     * passwordni coddlab beradi encod qiladi
      * @return
      */
     @Bean

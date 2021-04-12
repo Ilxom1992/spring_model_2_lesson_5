@@ -1,6 +1,5 @@
 package uz.pdp.appjwtrealemailauditing.service;
 
-import lombok.NoArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.pdp.appjwtrealemailauditing.entity.User;
 import uz.pdp.appjwtrealemailauditing.entity.enams.RoleEnum;
-import uz.pdp.appjwtrealemailauditing.payload.ApiResponse;
+import uz.pdp.appjwtrealemailauditing.payload.Response;
 import uz.pdp.appjwtrealemailauditing.payload.LoginDto;
 import uz.pdp.appjwtrealemailauditing.payload.RegisterDto;
 import uz.pdp.appjwtrealemailauditing.repository.RoleRepository;
@@ -49,16 +48,18 @@ public class AuthService implements UserDetailsService {
      * @param registerDto
      * @return
      */
-    public ApiResponse userRegister(RegisterDto registerDto){
+    public Response userRegister(RegisterDto registerDto){
         boolean existsByEmail = userRepository.existsByEmail(registerDto.getEmail());
         if (existsByEmail){
-            return new ApiResponse("Bunday email bazada mavjud",false);
+            return new Response("Bunday email bazada mavjud",false);
         }
         User user=new User();
         user.setFirstName(registerDto.getFirstName());
         user.setLastName(registerDto.getLastName());
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+
+        user.setEnabled(true);
         //USERGA ROLE BERISH
         user.setRole(Collections.singleton(roleRepository.findByRoleName(RoleEnum.ROLE_USER)));
 
@@ -67,7 +68,7 @@ public class AuthService implements UserDetailsService {
         userRepository.save(user);
         //EMAILGA HABAR YUBORISH TASDIQLASH KODINI YUBORADI, METHODINI CHAQIRYABMIZ
         sendEmail(user.getEmail(),user.getEmailCode());
-        return new ApiResponse("Muafaqiyatli ro'yhatdan o'tdingiz Aakkonutingiz " +
+        return new Response("Muafaqiyatli ro'yhatdan o'tdingiz Aakkonutingiz " +
                 "aktivlashtirishingiz uchun emailni tasdiqlang",true);
     }
 
@@ -102,16 +103,16 @@ catch (Exception e){
      * @param emailCode
      * @return
      */
-    public ApiResponse verifyEmail(String email, String emailCode) {
+    public Response verifyEmail(String email, String emailCode) {
         Optional<User> optionalUser = userRepository.findByEmailAndEmailCode(email, emailCode);
         if (optionalUser.isPresent()){
             User user= optionalUser.get();
             user.setEnabled(true);
             user.setEmailCode(null);
             userRepository.save(user);
-            return new ApiResponse("Account tasdiqlandi",true);
+            return new Response("Account tasdiqlandi",true);
         }
-        return new ApiResponse("Akkount alloqachon tasdiqlangan",false);
+        return new Response("Akkount alloqachon tasdiqlangan",false);
     }
 
     /**
@@ -119,17 +120,17 @@ catch (Exception e){
      * @param loginDto
      * @return
      */
-    public ApiResponse login(LoginDto loginDto) {
+    public Response login(LoginDto loginDto) {
         try {
             Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginDto.getUsername(),
                     loginDto.getPassword()));
             User user=(User)authenticate.getPrincipal();
             String token = jwtProvider.generateToken(loginDto.getUsername(), user.getRole());
-            return new ApiResponse("Token",true,token);
+            return new Response("Token",true,token);
 
         }catch (BadCredentialsException badCredentialsException){
-            return new ApiResponse( "Parol yoki lagin hato",false);
+            return new Response( "Parol yoki lagin hato",false);
         }
     }
 
