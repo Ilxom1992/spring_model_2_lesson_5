@@ -33,7 +33,7 @@ public class Card {
 
     private Date expiredDate;
 
-    private  boolean isActive;
+    private  boolean isActive=true;
 
     @OneToOne
     private  User user;

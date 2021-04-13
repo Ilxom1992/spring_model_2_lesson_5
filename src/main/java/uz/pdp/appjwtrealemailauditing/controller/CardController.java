@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import uz.pdp.appjwtrealemailauditing.payload.CardDto;
 import uz.pdp.appjwtrealemailauditing.payload.Response;
 import uz.pdp.appjwtrealemailauditing.service.CardService;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,33 +25,30 @@ public class CardController {
     }
 
     @PostMapping("/add")
-    public HttpEntity<?> addCard(@RequestBody CardDto cardDto) {
-        final Response response = cardService.add(cardDto);
+    public HttpEntity<?> addCard(@RequestBody CardDto cardDto,HttpServletRequest httpServletRequest) {
+        final Response response = cardService.add(cardDto,httpServletRequest);
         return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
 
     @PostMapping("/transfer")
     public HttpEntity<?> transfer(@RequestParam Double amount,
-                                  @RequestParam UUID senderId,
                                   @RequestParam UUID senderCardId,
                                   @RequestParam UUID recipientCardId) {
-        final Response response = cardService.transfer(amount, senderId, senderCardId, recipientCardId);
+        final Response response = cardService.transfer(amount, senderCardId, recipientCardId);
         return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
 
     @PostMapping("/deposit")
     public HttpEntity<?> deposit(@RequestParam Double amount,
-                                 @RequestParam UUID userId,
                                  @RequestParam UUID cardId) {
-        final Response response = cardService.deposit(amount, userId, cardId);
+        final Response response = cardService.deposit(amount,cardId);
         return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
 
     @PostMapping("/withdrawal")
     public HttpEntity<?> withdrawal(@RequestParam Double amount,
-                                    @RequestParam UUID userId,
                                     @RequestParam UUID cardId) {
-        final Response response = cardService.withdrawal(amount, userId, cardId);
+        final Response response = cardService.withdrawal(amount,cardId);
         return ResponseEntity.status(response.isSuccess() ? 201 : 409).body(response);
     }
 

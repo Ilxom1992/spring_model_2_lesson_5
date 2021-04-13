@@ -24,4 +24,8 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
 
     @Query(value = "update card set balance = ?1 where id = ?2 returning balance", nativeQuery = true)
     void editMoney(Double money, UUID cardId);
+
+    @Query(value = "select * from card join users u on u.id = card.user_id where card.id=?1 and  u.id=?2",nativeQuery = true)
+    Optional<Card> getCardByCardIdAndUserId(UUID cardId,UUID userId);
+
 }

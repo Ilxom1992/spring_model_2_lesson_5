@@ -19,6 +19,8 @@ import uz.pdp.appjwtrealemailauditing.payload.RegisterDto;
 import uz.pdp.appjwtrealemailauditing.repository.RoleRepository;
 import uz.pdp.appjwtrealemailauditing.repository.UserRepository;
 import uz.pdp.appjwtrealemailauditing.security.JwtProvider;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -135,7 +137,7 @@ catch (Exception e){
     }
 
     /**
-     * BU METHOD BAZADAN YUZERNI TOPIB QAYTARADI
+     * BU METHOD BAZADAN UZER NI TOPIB QAYTARADI
      * @param email
      * @return
      * @throws UsernameNotFoundException
@@ -148,4 +150,5 @@ catch (Exception e){
         }
         throw new UsernameNotFoundException(" User topilmadi");
     }
+
 }

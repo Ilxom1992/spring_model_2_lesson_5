@@ -67,7 +67,7 @@ http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     mailSender.setHost("smtp.gmail.com");
     mailSender.setPort(587);
     mailSender.setUsername("ilxom.xojamurodov@gmail.com");
-    mailSender.setPassword("");
+    mailSender.setPassword("qoramarmarid");
     Properties properties =mailSender.getJavaMailProperties();
     properties.put("mail.transport.protocol","smtp");
     properties.put("mail.smtp.auth","true");

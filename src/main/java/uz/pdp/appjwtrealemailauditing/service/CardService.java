@@ -1,18 +1,22 @@
 package uz.pdp.appjwtrealemailauditing.service;
 
 import org.springframework.stereotype.Service;
+
 import uz.pdp.appjwtrealemailauditing.config.KimYozganiniBilish;
 import uz.pdp.appjwtrealemailauditing.entity.Card;
 import uz.pdp.appjwtrealemailauditing.entity.Income;
 import uz.pdp.appjwtrealemailauditing.entity.Outcome;
 import uz.pdp.appjwtrealemailauditing.entity.User;
+
 import uz.pdp.appjwtrealemailauditing.payload.Response;
 import uz.pdp.appjwtrealemailauditing.payload.CardDto;
 import uz.pdp.appjwtrealemailauditing.repository.CardRepository;
 import uz.pdp.appjwtrealemailauditing.repository.IncomeRepository;
 import uz.pdp.appjwtrealemailauditing.repository.OutcomeRepository;
 import uz.pdp.appjwtrealemailauditing.repository.UserRepository;
+import uz.pdp.appjwtrealemailauditing.security.JwtProvider;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,25 +27,27 @@ public class CardService {
   final    CardRepository cardRepository;
   final    IncomeRepository incomeRepository;
   final    OutcomeRepository outcomeRepository;
+  final    JwtProvider jwtProvider;
+
 
     public CardService(UserRepository userRepository,
                        CardRepository cardRepository,
                        IncomeRepository incomeRepository,
-                       OutcomeRepository outcomeRepository) {
+                       OutcomeRepository outcomeRepository, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
         this.cardRepository = cardRepository;
         this.incomeRepository = incomeRepository;
         this.outcomeRepository = outcomeRepository;
+        this.jwtProvider = jwtProvider;
     }
-
-
-    public Response withdrawal(Double amount, UUID userId, UUID cardId) {
-
+KimYozganiniBilish kimYozganiniBilish=new KimYozganiniBilish();
+    public Response withdrawal(Double amount,UUID cardId) {
+        UUID userId=kimYozganiniBilish.getCurrentAuditor().get();
         Outcome outcome = new Outcome();
         outcome.setAmount(amount);
 
-        final Optional<Card> optionalCard = cardRepository.findById(cardId);
-        if (!optionalCard.isPresent()) {
+       final Optional<Card> optionalCard = cardRepository.getCardByCardIdAndUserId(cardId,userId);
+        if (optionalCard.isEmpty()) {
             return new Response("Card not found", false);
         }
         outcome.setFromCard(optionalCard.get());
@@ -54,18 +60,17 @@ public class CardService {
 
         outcomeRepository.save(outcome);
 
-        if (money < (money - amount * 1.01)) {
+        if (money < (money - amount + commissionAmount)) {
             return new Response("Not enough money", false);
         }
-
         double newBalance = money - amount * 1.01;
         cardRepository.editMoney(newBalance, cardId);
 
         return new Response("Withdrawal processed successfully", true);
     }
 
-    public Response deposit(Double amount, UUID userId, UUID cardId) {
-
+    public Response deposit(Double amount, UUID cardId) {
+        UUID userId=kimYozganiniBilish.getCurrentAuditor().get();
         Income income = new Income();
         income.setAmount(amount);
 
@@ -85,14 +90,16 @@ public class CardService {
         return new Response("Added", true);
     }
 
-    public Response add(CardDto cardDto) {
+    public Response add(CardDto cardDto,HttpServletRequest httpServletRequest) {
         Card card = new Card();
-        card.setActive(cardDto.isActive());
+        card.setActive(true);
         card.setExpiredDate(cardDto.getExpiredDate());
         card.setNumber(cardDto.getNumber());
-        card.setUsername(cardDto.getUsername());
 
-        final Optional<User> optionalUser = userRepository.findById(cardDto.getUserId());
+
+        String username = userNameFromToken(httpServletRequest);
+        card.setUsername(username);
+        final Optional<User> optionalUser = userRepository.findByEmail(username);
         if (optionalUser.isEmpty()) {
             return new Response("User not found", false);
         }
@@ -102,7 +109,9 @@ public class CardService {
         return new Response("Saved!", true, save);
     }
 
-    public Response transfer(Double amount, UUID userId, UUID senderCardId, UUID recipientCardId) {
+    public Response transfer(Double amount, UUID senderCardId, UUID recipientCardId) {
+
+        UUID userId=kimYozganiniBilish.getCurrentAuditor().get();
 
         final boolean existsByIdAndUserId = cardRepository.existsByIdAndUserId(senderCardId, userId);
         if (!existsByIdAndUserId) {
@@ -144,5 +153,10 @@ public class CardService {
 
         return new Response("Transfer successfully processed", true, save);
 
+    }
+    public String  userNameFromToken(HttpServletRequest httpServletRequest){
+        String token = httpServletRequest.getHeader("Authorization");
+        token = token.substring(7);
+        return jwtProvider.getUserEmailFromToken(token);
     }
 }
