@@ -60,7 +60,7 @@ KimYozganiniBilish kimYozganiniBilish=new KimYozganiniBilish();
 
         outcomeRepository.save(outcome);
 
-        if (money < (money - amount + commissionAmount)) {
+        if (0 > (money - amount - commissionAmount)) {
             return new Response("Not enough money", false);
         }
         double newBalance = money - amount * 1.01;
